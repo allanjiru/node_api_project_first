@@ -1,17 +1,31 @@
+//Express
 const express = require('express');
+const app = express();
+
+//dotenv
 const dotenv = require('dotenv');
 
-const bootcamps = require('./routes/bootcamps');
+//Middleware
+const errorHandler = require('./middleware/error');
+
+const DBConnect = require('./config/db');
 
 //Load env vars
 dotenv.config({ path: './config/config.env' });
 
-const app = express();
+//Bootcamp route
+const bootcampsRoute = require('./routes/bootcamps');
+
+app.use(express.json());
+
 //Mount Routers
-app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/bootcamps', bootcampsRoute);
+app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, (req, res) => {
+DBConnect();
+const server = app.listen(PORT, (req, res) => {
   `SERVER IS RUNNING ON PORT ${PORT}`;
+  console.log(`SERVER IS RUNNING ON PORT ${PORT}`);
 });
