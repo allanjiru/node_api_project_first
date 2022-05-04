@@ -46,6 +46,7 @@ const deleteDataDB = async () => {
   try {
     await Bootcamp.deleteMany();
     await Course.deleteMany();
+    await Review.deleteMany();
     await User.deleteMany();
     console.log('Data deleted ...');
     process.exit();

@@ -15,11 +15,14 @@ dotenv.config({ path: './config/config.env' });
 
 //Bootcamp route
 const bootcampsRoute = require('./routes/bootcamps');
+//Course route
+const courseRoute = require('./routes/course');
 
 app.use(express.json());
 
 //Mount Routers
 app.use('/api/v1/bootcamps', bootcampsRoute);
+app.use('/api/v1/courses', courseRoute);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
