@@ -1,15 +1,31 @@
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
 const Bootcamp = require('../models/Bootcamp');
 const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/async')
+const asyncHandler = require('../middleware/async');
+const geocoder = require('../utils/geocoder');
+const match = require('nodemon/lib/monitor/match');
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
+  let query;
+  //copy req.query
+  let reqQuery = { ...req.query };
+  //Create Query String
+  let queryStr = JSON.stringify(req.query);
+  //Create Operators ($gt, $gte, $lt, $lte, $in)
+  queryStr = queryStr.replace(
+    /\b(gt|gte|lt|lte|in)\b/g,
+    (match) => `$${match}`
+  );
+
   try {
-    let bootcamps = await Bootcamp.find();
-    res.status(200).json({ success: true, data: bootcamps });
+    //Finding Resource
+    query = Bootcamp.find(JSON.parse(queryStr));
+    //Execute query
+    let bootcamps = await query;
+    res
+      .status(200)
+      .json({ success: true, count: bootcamps.length, data: bootcamps });
   } catch (error) {}
 });
 
@@ -81,4 +97,27 @@ exports.deleteBootcamps = asyncHandler(async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+// @desc        Get bootcamp within a radius
+// @route       GET /api/v1/bootcamps/radius/:zipcode/:distance
+// @access      Private
+exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
+  let { zipcode, distance } = req.params;
+  const loc = await geocoder.geocode(zipcode);
+  const lat = loc[0].latitude;
+  const long = loc[0].longitude;
+
+  // calc radius using radians
+  // Divide dist by radius of earth
+  // Earth radius = 3,963 mi / 6,378 km
+  const radius = distance / 3963;
+
+  const bootcamps = await Bootcamp.find({
+    location: { $geoWithin: { $centerSphere: [[long, lat], radius] } },
+  });
+
+  res
+    .status(200)
+    .json({ success: true, count: bootcamps.length, data: bootcamps });
 });
