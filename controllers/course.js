@@ -25,14 +25,71 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
 });
 
 // @desc        Get course
-// @route       GET /api/v1/courses/:id
+// @route       GET /courses/:id
 // @access      Public
 exports.getCourse = asyncHandler(async (req, res, next) => {
   try {
     let id = req.params.id;
-    const course = await Course.findById(id);
+    const course = await Course.findById(id).populate({
+      path: 'bootcamp',
+      select: 'name description',
+    });
+    if (!course) {
+      return next(
+        new ErrorResponse(`Bootcamp not found with id of ${id}`, 404)
+      );
+    }
     res.status(200).json({ success: true, data: course });
   } catch (error) {
     next(error);
   }
+});
+
+// @desc        Update course
+// @route       PUT /api/v1/courses/:id
+// @access      Public
+exports.updateCourse = asyncHandler(async (req, res, next) => {
+  try {
+    let id = req.params.id;
+    const course = await Course.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+      context: 'query',
+    });
+    if (!course) {
+      return next(
+        new ErrorResponse(`Bootcamp not found with id of ${id}`, 404)
+      );
+    }
+    res.status(200).json({ success: true, data: course });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc        Delete course
+// @route       DELETE /api/v1/courses/:id
+// @access      Public
+exports.deleteCourse = asyncHandler(async (req, res, next) => {
+  try {
+    let id = req.params.id;
+    const course = await Course.findById(id);
+    if (!course) {
+      return next(
+        new ErrorResponse(`Bootcamp not found with id of ${id}`, 404)
+      );
+    }
+    course.remove();
+    res.status(200).json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc        Add course
+// @route       POST /api/v1/courses
+// @access      Public
+exports.addCourse = asyncHandler(async (req, res, next) => {
+  const course = await Course.create(req.body);
+  res.status(200).json({ success: true, data: course });
 });

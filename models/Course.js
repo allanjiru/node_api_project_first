@@ -14,10 +14,11 @@ const courseSchema = new Schema(
       type: String,
       required: [true, 'Please add a course description'],
       maxlength: [500, 'Description can not be more than 500 characters'],
+      minlength: [3, 'Description should be at least 3 characters'],
     },
     weeks: {
       type: String,
-      required: true,
+      required: [true, 'Please add weeks'],
     },
     tuition: {
       type: String,
