@@ -4,78 +4,13 @@ const asyncHandler = require('../middleware/async');
 const geocoder = require('../utils/geocoder');
 // const match = require('nodemon/lib/monitor/match');
 // const { param } = require('../routes/bootcamps');
+const cloudinary = require('../utils/cloudinary');
 
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  let query;
-  //copy req.query
-  let reqQuery = { ...req.query };
-  //Fields to execute
-  const removeFields = ['select', 'sort'];
-  //loop over removeFields and delete them from query
-  removeFields.forEach((param) => delete reqQuery[param]);
-  //Create Query String
-  let queryStr = JSON.stringify(req.query);
-  //Create Operators ($gt, $gte, $lt, $lte, $in)
-  queryStr = queryStr.replace(
-    /\b(gt|gte|lt|lte|in)\b/g,
-    (match) => `$${match}`
-  );
-
-  try {
-    //Finding Resource
-    query = Bootcamp.find(JSON.parse(queryStr)).populate('courses');
-
-    // Select fields
-    if (req.query.select) {
-      const fields = req.query.select.split(',').join(' ');
-      query = query.select(fields);
-    }
-
-    // Sort
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    //pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Bootcamp.countDocuments();
-    query = query.skip(startIndex).limit(limit);
-
-    //Execute query
-    let bootcamps = await query;
-
-    //Pagination Result
-    const pagination = {};
-
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit,
-      };
-    }
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit,
-      };
-    }
-
-    res.status(200).json({
-      success: true,
-      count: bootcamps.length,
-      data: bootcamps,
-      pagination: pagination,
-    });
-  } catch (error) {}
+  res.status(200).json(res.advancedResults);
 });
 
 // @desc        Get single bootcamp
@@ -171,3 +106,8 @@ exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
     .status(200)
     .json({ success: true, count: bootcamps.length, data: bootcamps });
 });
+
+// @desc        Upload bootcamp image
+// @route       POST /api/v1/bootcamps/:id/photo
+// @access      Private
+exports.uploadImageBootcamp = asyncHandler(async (req, res, next) => {});

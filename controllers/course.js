@@ -7,20 +7,16 @@ const asyncHandler = require('../middleware/async');
 // @route       GET /api/v1/bootcamps/:bootcamp/courses
 // @access      Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
-  try {
-    let query;
-    if (req.params.bootcamp) {
-      query = await Course.find({ bootcamp: req.params.bootcamp }).populate(
-        'bootcamp'
-      );
-    } else {
-      query = await Course.find().populate('bootcamp');
-    }
-    return res
-      .status(200)
-      .json({ success: true, count: query.length, data: query });
-  } catch (error) {
-    next(error);
+  if (req.params.bootcampId) {
+    const courses = await Course.find({ bootcamp: req.params.bootcampId });
+
+    return res.status(200).json({
+      success: true,
+      count: courses.length,
+      data: courses,
+    });
+  } else {
+    res.status(200).json(res.advancedResults);
   }
 });
 
