@@ -9,13 +9,13 @@ const bootcampSchema = new Schema(
       type: String,
       trim: true,
       unique: true,
-      required: true,
+      required: [true, 'Name is required'],
       minlength: [3, 'Name should be at least 3 characters'],
     },
     slug: String,
     description: {
       type: String,
-      required: true,
+      required: [true, 'Description is required'],
       maxlength: [500, 'Description can not be more than 500 characters'],
     },
     website: {
@@ -95,6 +95,10 @@ const bootcampSchema = new Schema(
     acceptGi: {
       type: Boolean,
       default: false,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
   },
   {
