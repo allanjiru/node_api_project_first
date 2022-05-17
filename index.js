@@ -30,8 +30,6 @@ if (!fs.existsSync('./uploads')) {
   fs.mkdirSync('./uploads');
 }
 
-//express-fileupload
-// const fileUpload = require('express-fileupload');
 const bodyParser = require('body-parser');
 // body parser configuration
 app.use(bodyParser.json());
