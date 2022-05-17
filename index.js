@@ -30,6 +30,29 @@ if (!fs.existsSync('./uploads')) {
   fs.mkdirSync('./uploads');
 }
 
+//express-mongo-sanitize
+const expressMongoSanitize = require('express-mongo-sanitize');
+app.use(expressMongoSanitize());
+//set security headers(helmet)
+const helmet = require('helmet');
+app.use(helmet());
+//prevent xss attacks
+const xss = require('xss-clean');
+app.use(xss());
+//Rate limiting(expressRateLimit)
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+});
+app.use(limiter);
+//Prevent http param pollution(hpp)
+const hpp = require('hpp');
+app.use(hpp());
+//cors
+const cors = require('cors');
+app.use(cors());
+
 const bodyParser = require('body-parser');
 // body parser configuration
 app.use(bodyParser.json());
